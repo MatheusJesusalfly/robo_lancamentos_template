@@ -19,4 +19,7 @@ def test_ignora_espacos_na_lista():
 
 
 def test_modelo_tem_padrao():
-    assert Config().gemini_modelo == "gemini-3.5-flash"
+    """O "-lite" e escolha, nao acaso: numa chave nova do plano gratuito ele
+    respondeu enquanto os outros davam 503. Se este teste quebrar porque alguem
+    trocou o padrao, confira antes se o modelo novo aguenta a fila."""
+    assert Config().gemini_modelo == "gemini-3.5-flash-lite"
