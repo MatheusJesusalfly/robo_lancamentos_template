@@ -7,6 +7,12 @@ na sua planilha do Google.
 É um modelo para você adaptar à sua agência. Começa a adaptação em
 [`COMECE_AQUI.md`](COMECE_AQUI.md).
 
+Para entender ou mudar o robô depois:
+[`docs/COMO_FUNCIONA.md`](docs/COMO_FUNCIONA.md) (o caminho de uma venda e as
+três portas) e [`docs/RECEITAS.md`](docs/RECEITAS.md) (o passo a passo das
+mudanças mais pedidas — trocar o destino, sair do plano gratuito, acrescentar
+um campo).
+
 ---
 
 ## ⚠️ Antes de tudo: o plano gratuito do Gemini lê os seus dados
@@ -131,3 +137,4 @@ depois disso.
 | `app/conversa.py` | Resumo, confirmação e correção |
 | `apps_script/Codigo.gs` | O que vai colado na planilha |
 | `tests/` | O cinto de segurança |
+| `docs/` | Como funciona, e as receitas de mudança |
