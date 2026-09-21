@@ -29,6 +29,16 @@ Siga aquele arquivo à risca, inclusive a ordem.
   resultado em texto.
 - **Nunca diga que está pronto sem ter rodado os testes.**
 
+## Arquivos que ela não consegue ver
+
+`.env`, `.env.example`, `.gitignore` e a pasta `.claude/` começam com ponto, e
+por isso são **invisíveis** no Finder e no Explorer. Nunca peça para ela "abrir
+o `.env.example`" ou "copiar o arquivo": ela não vai achar.
+
+Quando for preciso configurar, **faça você**: crie o `.env`, peça cada valor
+por mensagem ("me manda o token que o BotFather te deu"), escreva no arquivo e
+confirme em texto o que ficou lá — sem repetir o valor da chave na tela.
+
 ## Depois de qualquer mudança no código
 
 Rode `.venv/bin/pytest -q` e diga o resultado em uma frase simples:
