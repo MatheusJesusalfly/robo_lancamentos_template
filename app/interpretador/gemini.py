@@ -16,11 +16,21 @@ nao este.
 
 from __future__ import annotations
 
+import time
+
 import httpx
 
 from app.dominio.lancamento import Lancamento
 
 BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+#: Quanto esperar antes de tentar de novo. Duas esperas, logo tres tentativas.
+ESPERAS = (2, 4)
+
+#: Recusa que repetir NAO conserta: chave errada, modelo que nao existe, pedido
+#: malformado, quota estourada. Essas sobem na hora -- repetir so faria quem
+#: vendeu esperar mais para ler o mesmo erro.
+NAO_ADIANTA_REPETIR = {400, 401, 403, 404, 429}
 
 ESQUEMA = {
     "type": "object",
@@ -60,7 +70,10 @@ class Gemini:
         self._chave = chave
         self._modelo = modelo
         self._manual = manual
-        self._http = cliente or httpx.Client(timeout=60)
+        # 30s e nao 60: com tres tentativas, 60 viraria tres minutos de silencio
+        # para quem esta esperando o resumo no Telegram. Uma chamada que da
+        # certo leva uns 7 segundos.
+        self._http = cliente or httpx.Client(timeout=30)
 
     def interpretar(self, texto: str) -> Lancamento:
         corpo = {
@@ -71,14 +84,7 @@ class Gemini:
                 "responseSchema": ESQUEMA,
             },
         }
-        resposta = self._http.post(
-            f"{BASE}/models/{self._modelo}:generateContent",
-            headers={"x-goog-api-key": self._chave},
-            json=corpo)
-
-        if resposta.status_code != 200:
-            raise RuntimeError(
-                f"o Gemini recusou ({resposta.status_code}): {resposta.text[:200]}")
+        resposta = self._pedir(corpo)
 
         try:
             bruto = resposta.json()["candidates"][0]["content"]["parts"][0]["text"]
@@ -87,3 +93,37 @@ class Gemini:
                 f"resposta do Gemini fora do formato: {resposta.text[:200]}") from None
 
         return Lancamento.model_validate_json(bruto)
+
+    def _pedir(self, corpo: dict) -> httpx.Response:
+        """Tenta de novo quando o Gemini engasga.
+
+        No plano gratuito o 503 ("alta demanda") e o timeout aparecem sozinhos e
+        somem sozinhos, em segundos. Sem esta repeticao o robo leva o primeiro
+        nao e devolve erro para quem vendeu -- que digita a venda de novo, as
+        vezes na frente do cliente, as vezes na frente de uma turma.
+        """
+        erro: RuntimeError | None = None
+
+        for tentativa in range(len(ESPERAS) + 1):
+            if tentativa:
+                time.sleep(ESPERAS[tentativa - 1])
+
+            try:
+                resposta = self._http.post(
+                    f"{BASE}/models/{self._modelo}:generateContent",
+                    headers={"x-goog-api-key": self._chave},
+                    json=corpo)
+            except httpx.RequestError as falha:
+                # Timeout e queda de rede: exatamente o caso que volta sozinho.
+                erro = RuntimeError(f"o Gemini nao respondeu: {falha}")
+                continue
+
+            if resposta.status_code == 200:
+                return resposta
+
+            erro = RuntimeError(
+                f"o Gemini recusou ({resposta.status_code}): {resposta.text[:200]}")
+            if resposta.status_code in NAO_ADIANTA_REPETIR:
+                raise erro
+
+        raise RuntimeError(f"{erro} -- tentei {len(ESPERAS) + 1} vezes")

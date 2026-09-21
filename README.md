@@ -51,6 +51,11 @@ ninguém**, e isso é de propósito: um robô que escreve e não sabe a quem obe
 **3. A chave do modelo (2 min)** — em **aistudio.google.com**, *Get API key*.
 Vai em `GEMINI_API_KEY`. (Leia o aviso lá em cima.)
 
+> Aproveite que está lá e **confira a lista de modelos**. Nomes entram e saem:
+> se o robô responder *"o Gemini recusou (404)"*, é porque o nome que está no
+> `.env` não existe mais na sua chave. A receita para trocar está em
+> [`docs/RECEITAS.md`](docs/RECEITAS.md).
+
 **4. A planilha (3 min)** — crie uma planilha no Google Sheets. Vá em
 **Extensões → Apps Script**, apague o que estiver lá e cole o conteúdo de
 [`apps_script/Codigo.gs`](apps_script/Codigo.gs). Troque o `SEGREDO` por uma
@@ -75,6 +80,15 @@ a sua palavra para `PLANILHA_SEGREDO`.
 
 > O segredo importa: "qualquer pessoa" significa qualquer pessoa mesmo. Sem ele,
 > quem descobrir o endereço escreve linhas na sua planilha.
+
+> **Confira a última linha depois de colar.** O editor do Apps Script às vezes
+> engole a última linha do que você colou — e ela é uma `}` sozinha, que fecha o
+> arquivo. Sem ela a implantação falha com *"Ocorreu um erro"*, que não diz o
+> que houve; o erro de verdade aparece antes, no editor:
+> *"SyntaxError: Unexpected end of input"*.
+>
+> Role até o fim do editor: **a última linha tem de ser uma `}` sozinha.** Se
+> não for, digite uma.
 
 ## Rodar
 

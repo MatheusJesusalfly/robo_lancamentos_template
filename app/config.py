@@ -14,8 +14,12 @@ class Config(BaseSettings):
 
     telegram_token: str = ""
     gemini_api_key: str = ""
-    #: Confira o nome do modelo atual no Google AI Studio antes da aula.
-    gemini_modelo: str = "gemini-3.5-flash"
+    #: O "lite" de proposito: medido numa chave nova do plano gratuito, ele
+    #: respondeu em ~1,2s enquanto o 3.5-flash e o 3.6-flash devolviam 503. Num
+    #: robo que le venda, estar disponivel vale mais que ser o maior modelo.
+    #: Nomes de modelo mudam: confira em aistudio.google.com de tempos em
+    #: tempos. Se der 404, e isso. A receita esta em docs/RECEITAS.md.
+    gemini_modelo: str = "gemini-3.5-flash-lite"
     planilha_url: str = ""
     planilha_segredo: str = ""
     #: Ids do Telegram separados por virgula. Descubra o seu com @userinfobot.

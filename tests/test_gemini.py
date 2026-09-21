@@ -75,3 +75,49 @@ def test_resposta_fora_do_formato_vira_mensagem_legivel():
     respx.post(URL).mock(return_value=httpx.Response(200, json={"promptFeedback": {}}))
     with pytest.raises(RuntimeError, match="fora do formato"):
         Gemini("chave", MODELO, "").interpretar("vendi X")
+
+
+@pytest.fixture
+def sem_espera(monkeypatch):
+    """A regra e repetir, nao esperar. O teste nao precisa dos 6 segundos."""
+    monkeypatch.setattr("app.interpretador.gemini.ESPERAS", (0, 0))
+
+
+@respx.mock
+def test_repete_quando_o_gemini_diz_que_esta_com_alta_demanda(sem_espera):
+    """503 no plano gratuito vai e volta em segundos. Desistir na primeira faz
+    quem vendeu digitar a venda de novo."""
+    rota = respx.post(URL).mock(side_effect=[
+        httpx.Response(503, text="high demand"),
+        httpx.Response(503, text="high demand"),
+        resposta_do_modelo()])
+    lanc = Gemini("chave", MODELO, "").interpretar("vendi X")
+    assert lanc.cliente == "Ana"
+    assert rota.call_count == 3
+
+
+@respx.mock
+def test_repete_quando_o_gemini_nao_responde_a_tempo(sem_espera):
+    rota = respx.post(URL).mock(side_effect=[
+        httpx.ReadTimeout("The read operation timed out"),
+        resposta_do_modelo()])
+    assert Gemini("chave", MODELO, "").interpretar("vendi X").cliente == "Ana"
+    assert rota.call_count == 2
+
+
+@respx.mock
+def test_desiste_depois_de_tres_tentativas(sem_espera):
+    rota = respx.post(URL).mock(return_value=httpx.Response(503, text="high demand"))
+    with pytest.raises(RuntimeError, match="tentei 3 vezes"):
+        Gemini("chave", MODELO, "").interpretar("vendi X")
+    assert rota.call_count == 3
+
+
+@respx.mock
+def test_nao_repete_o_que_repetir_nao_conserta(sem_espera):
+    """Chave errada continua errada na terceira tentativa. Subir na hora e o
+    favor que se faz a quem esta esperando."""
+    rota = respx.post(URL).mock(return_value=httpx.Response(401, text="API key invalid"))
+    with pytest.raises(RuntimeError, match="401"):
+        Gemini("chave-errada", MODELO, "").interpretar("vendi X")
+    assert rota.call_count == 1

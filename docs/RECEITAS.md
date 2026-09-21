@@ -70,6 +70,50 @@ degrau de cima.
 
 ---
 
+## O Gemini está dando 503, ou demorando demais
+
+Sintoma, na conversa do Telegram:
+
+```
+Nao consegui entender essa venda: o Gemini recusou (503):
+This model is currently experiencing high demand
+```
+
+ou
+
+```
+Nao consegui entender essa venda: a chamada nao completou: ... timed out
+```
+
+**Primeiro: o robô já tenta três vezes sozinho.** Se a mensagem terminar com
+*"tentei 3 vezes"*, as três falharam — não foi desistência na primeira. Se ela
+**não** terminar assim, foi outro problema, e não é este o caso aqui.
+
+O plano gratuito é uma fila, e quando o modelo que você escolheu está cheio, os
+"lite" costumam continuar respondendo. **Troque o modelo:**
+
+1. Abra o `.env` (ou peça ao Claude: *"troca o modelo do Gemini"*).
+2. Mude `GEMINI_MODELO` para outro da lista abaixo.
+3. Reinicie o robô: `Ctrl+C`, e `.venv/bin/python -m app` de novo.
+
+| Modelo | Como se comportou |
+|---|---|
+| `gemini-3.5-flash-lite` | **O padrão do kit.** Respondeu em ~1,2s numa hora em que os outros dois davam 503 |
+| `gemini-3.5-flash` | Bom, mas foi o que mais pegou fila |
+| `gemini-3.6-flash` | Idem |
+| `gemini-2.5-flash` | **Não use.** Numa chave criada hoje, responde 404 — não existe mais nela |
+
+## O robô diz "o Gemini recusou (404)"
+
+O nome do modelo no `.env` não existe na sua chave. Acontece porque **a lista de
+modelos muda com o tempo** — um nome que funcionava some.
+
+Abra **aistudio.google.com**, veja quais modelos aparecem para a sua chave, e
+ponha um deles em `GEMINI_MODELO`. Comece pelo que termina em `-lite`.
+
+Não é erro da sua instalação e não tem nada a ver com a sua chave estar certa ou
+errada — chave errada dá **401**, não 404.
+
 ## Sair do plano gratuito do Gemini
 
 Faça isto **antes de apontar o robô para venda de cliente de verdade.**
