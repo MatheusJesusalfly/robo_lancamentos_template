@@ -14,18 +14,30 @@ São oito perguntas, uns doze minutos. No fim, `manual/MANUAL.md` vai estar
 escrito com as suas palavras — e **esse arquivo é o robô**. Tudo que estiver
 escrito nele é como o robô vai entender as suas vendas.
 
-## 2. Preencha o `.env`
+## 2. Deixe o Claude te guiar pela configuração
 
-Copie `.env.example` para `.env` e siga o `README.md`. São quatro coisas, seis
-minutos de clique, **sem cartão de crédito**:
+**Não tente seguir o README sozinho.** Peça a ele, na mesma conversa:
+
+```
+Me guia pelos seis minutos de clique do README, um passo por vez. Eu vou
+clicando e te trazendo o que aparecer na tela. No fim, cria o .env com tudo.
+```
+
+Ele dá um passo, você clica, volta e cola o que apareceu, ele guarda. São
+quatro coisas e **nenhuma pede cartão de crédito**:
 
 - o token do bot (BotFather, no Telegram)
 - o seu id no Telegram (@userinfobot)
 - a chave do Google AI Studio
 - a URL da sua planilha (Apps Script)
 
-Se travar em qualquer uma, peça ao Claude: *"me ajuda a pegar o token do
-Telegram"*. Ele te guia clique a clique.
+**Numa delas o Google vai mostrar uma tela dizendo que "este app não foi
+verificado", e só oferecer Cancelar.** É normal: o app não verificado é o seu
+próprio script, na sua própria planilha. O caminho é *Avançado → Acessar*, uma
+vez só. O `README.md` explica com calma, e o Claude também.
+
+A regra que vale para tudo daqui em diante: **você não precisa decorar nada.
+Pergunta.**
 
 ## 3. Ligue
 
