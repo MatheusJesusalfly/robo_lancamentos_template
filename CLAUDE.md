@@ -41,7 +41,7 @@ confirme em texto o que ficou lá — sem repetir o valor da chave na tela.
 
 ## Depois de qualquer mudança no código
 
-Rode `.venv/bin/pytest -q` e diga o resultado em uma frase simples:
+Rode `.venv/bin/pytest` e diga o resultado em uma frase simples:
 verde significa que o robô continua fazendo o que fazia; vermelho significa
 que a mudança quebrou alguma coisa e você vai consertar antes de continuar.
 

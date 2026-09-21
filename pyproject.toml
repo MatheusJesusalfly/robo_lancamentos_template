@@ -10,7 +10,12 @@ dev = ["pytest>=8.0", "respx>=0.21"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+# Sem "-q" aqui de proposito: com ele, quem digitar "pytest -q" acaba com dois
+# -q, e dois -q ESCONDEM a linha do resultado -- some justamente o "75 passed"
+# que e a unica coisa que a pessoa precisa ler.
+# --disable-warnings tira o muro amarelo de avisos de biblioteca, que nao e
+# erro nenhum mas assusta quem nao le codigo.
+addopts = "--disable-warnings --tb=short"
 
 [tool.setuptools.packages.find]
 include = ["app*"]
