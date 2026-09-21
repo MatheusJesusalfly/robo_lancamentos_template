@@ -58,6 +58,21 @@ palavra sua. Depois **Implantar → Nova implantação → App da Web**, executa
 como você, com acesso para *qualquer pessoa*. Copie a URL para `PLANILHA_URL` e
 a sua palavra para `PLANILHA_SEGREDO`.
 
+> ### Vai aparecer uma tela dizendo que o app não foi verificado. É normal.
+>
+> Na primeira implantação o Google avisa que *"este app não foi verificado"* e
+> oferece só o botão **Cancelar**. Não é um erro e não é perigo: o "app não
+> verificado" **é o seu próprio script, na sua própria planilha**. O Google
+> mostra esse aviso para todo script que a pessoa escreveu e ele não revisou —
+> e ele não revisa scripts pessoais.
+>
+> O caminho é: clique em **Avançado** (embaixo, à esquerda) e depois em
+> **Acessar (nome do projeto) (não seguro)**. Em seguida ele pede permissão
+> para o script mexer nas suas planilhas — que é exatamente o que você quer que
+> ele faça. Clique em **Permitir**.
+>
+> Isso acontece **uma vez só**. Depois disso nunca mais aparece.
+
 > O segredo importa: "qualquer pessoa" significa qualquer pessoa mesmo. Sem ele,
 > quem descobrir o endereço escreve linhas na sua planilha.
 
