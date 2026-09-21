@@ -17,6 +17,11 @@
 const SEGREDO = 'troque-isto';
 
 function doPost(e) {
+  // Sem a trava, dois "sim" ao mesmo tempo podem receber o mesmo numero de
+  // linha -- ou o numero da linha do outro. A referencia que o robo devolve
+  // deixaria de servir para achar a venda.
+  const trava = LockService.getScriptLock();
+  trava.waitLock(20000);
   try {
     const dados = JSON.parse(e.postData.contents);
     if (dados.segredo !== SEGREDO) {
@@ -37,6 +42,8 @@ function doPost(e) {
     // Devolve o erro no corpo com status 200 porque o Apps Script nao deixa
     // escolher o status. E exatamente por isso que o robo le o corpo.
     return _json({ ok: false, erro: String(erro) });
+  } finally {
+    trava.releaseLock();
   }
 }
 

@@ -70,3 +70,38 @@ def test_responde_na_conversa_certa():
         return_value=httpx.Response(200, json={"ok": True}))
     Telegram(TOKEN).responder(99, "gravei")
     assert json.loads(rota.calls.last.request.content) == {"chat_id": 99, "text": "gravei"}
+
+
+@respx.mock
+def test_update_sem_quem_falou_nao_derruba_o_lote():
+    """Post de canal e admin anonimo chegam sem 'from'. Quebrar aqui perderia
+    as vendas lidas no mesmo lote -- e o offset ja avancou, entao elas nunca
+    voltariam."""
+    respx.get(f"{BASE}/getUpdates").mock(return_value=httpx.Response(200, json={
+        "ok": True, "result": [
+            {"update_id": 1, "message": {"chat": {"id": 9}, "text": "post do canal"}},
+            atualizacao(2, "vendi 5360"),
+        ]}))
+    assert [m.texto for m in Telegram(TOKEN).receber()] == ["vendi 5360"]
+
+
+@respx.mock
+def test_resposta_gigante_e_cortada():
+    """O Telegram recusa acima de 4096 caracteres, e o robo so descobriria
+    depois de ja ter gravado a venda."""
+    rota = respx.post(f"{BASE}/sendMessage").mock(
+        return_value=httpx.Response(200, json={"ok": True}))
+    Telegram(TOKEN).responder(1, "x" * 9000)
+    enviado = json.loads(rota.calls.last.request.content)["text"]
+    assert len(enviado) < 4100
+    assert enviado.endswith("[resposta cortada]")
+
+
+@respx.mock
+def test_recusa_do_telegram_vira_log_e_nao_excecao(caplog):
+    """Se estourar aqui depois de gravar, a pessoa reenvia a venda e duplica
+    a linha."""
+    respx.post(f"{BASE}/sendMessage").mock(
+        return_value=httpx.Response(403, text="bot was blocked by the user"))
+    Telegram(TOKEN).responder(1, "gravei")
+    assert "nao consegui responder" in caplog.text

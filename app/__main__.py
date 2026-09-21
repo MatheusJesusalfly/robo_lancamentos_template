@@ -10,6 +10,8 @@ import sys
 import time
 from pathlib import Path
 
+import httpx
+
 from app.canal.telegram import Telegram
 from app.config import Config
 from app.conversa import Conversa
@@ -72,6 +74,17 @@ def main() -> int:
         except KeyboardInterrupt:
             log.info("ate logo.")
             return 0
+        except httpx.HTTPStatusError as erro:
+            # Token errado devolve 401 para sempre. Sem este ramo o robo fica
+            # dizendo "tropecei, continuo" de tres em tres segundos, e quem
+            # esta instalando em casa nunca descobre o que ha de errado.
+            if erro.response.status_code in (401, 404):
+                log.error("O Telegram recusou o seu TELEGRAM_TOKEN. Confira no "
+                          ".env se voce colou o token inteiro que o @BotFather "
+                          "te deu.")
+                return 1
+            log.warning("tropecei, continuo: %s", erro)
+            time.sleep(3)
         except Exception as erro:
             # Nao derrubar por um piscar de rede. Numa aula ao vivo, um robo que
             # morre no primeiro timeout e o fim da demonstracao.

@@ -47,3 +47,12 @@ def test_segue_redirecionamento():
     """O Apps Script responde 302 para script.googleusercontent.com. Sem
     follow_redirects o httpx devolve o 302 e parece que falhou."""
     assert Planilha(URL, "segredo")._http.follow_redirects is True
+
+
+@respx.mock
+def test_sem_numero_da_linha_ainda_responde_direito():
+    """Um Apps Script antigo ainda implantado responde sem 'linha'. O KeyError
+    viraria "planilha: 'linha'" -- incompreensivel, e sugerindo falha numa
+    linha que gravou."""
+    respx.post(URL).mock(return_value=httpx.Response(200, json={"ok": True}))
+    assert Planilha(URL, "segredo").escrever(VENDA).referencia == "linha ?"

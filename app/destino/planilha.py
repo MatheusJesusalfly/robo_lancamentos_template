@@ -49,4 +49,8 @@ class Planilha:
         if not dados.get("ok"):
             raise RuntimeError(f"a planilha recusou: {dados.get('erro', dados)}")
 
-        return ResultadoEscrita(destino=self.nome, referencia=f"linha {dados['linha']}")
+        # .get e nao ['linha']: um Apps Script antigo ainda implantado responde
+        # sem o numero, e o KeyError viraria "planilha: 'linha'" para alguem que
+        # nao tem como entender isso -- sugerindo falha numa linha que gravou.
+        return ResultadoEscrita(destino=self.nome,
+                                referencia=f"linha {dados.get('linha', '?')}")

@@ -140,3 +140,51 @@ def test_depois_de_gravar_a_proxima_mensagem_comeca_do_zero():
     resposta = conversa.receber(msg("sim"))
     assert len(destino.escreveu) == 1
     assert "conta a venda" in resposta.lower()
+
+
+def test_duas_pessoas_no_mesmo_grupo_nao_se_misturam():
+    """Num grupo com dois vendedores, o 'sim' de um nao pode confirmar o resumo
+    do outro. A pendencia e por pessoa, nao por conversa."""
+    conversa, destino = montar(autorizados="42,43")
+    conversa.receber(msg("vendi 5360 custo 4800", de=42, chat=77))
+    resposta = conversa.receber(msg("sim", de=43, chat=77))
+    assert destino.escreveu == []
+    assert "conta a venda" in resposta.lower()
+
+
+def test_correcao_de_um_nao_entra_na_venda_do_outro():
+    interpretador = InterpretadorFalso()
+    conversa, _ = montar(interpretador, autorizados="42,43")
+    conversa.receber(msg("vendi 5360 custo 4800", de=42, chat=77))
+    conversa.receber(msg("vendi 9000 custo 8000", de=43, chat=77))
+    assert "5360" not in interpretador.textos[-1]
+
+
+def test_destino_fora_do_ar_guarda_o_resumo_para_nova_tentativa():
+    """Jogar a pendencia fora obrigaria a pessoa a digitar a venda inteira de
+    novo, por um problema que nao foi dela."""
+    destino = DestinoFalso(erro="planilha fora do ar")
+    conversa, _ = montar(destino=destino)
+    conversa.receber(msg("vendi 5360 custo 4800"))
+    resposta = conversa.receber(msg("sim"))
+    assert "sim de novo" in resposta
+
+    destino._erro = None
+    assert "linha 3" in conversa.receber(msg("sim"))
+    assert len(destino.escreveu) == 1
+
+
+def test_resumo_esquecido_vence(monkeypatch):
+    """Um 'ok' mandado horas depois, por outro motivo, nao pode gravar a venda
+    de ontem."""
+    import app.conversa as mod
+    agora = [1000.0]
+    monkeypatch.setattr(mod.time, "monotonic", lambda: agora[0])
+
+    conversa, destino = montar()
+    conversa.receber(msg("vendi 5360 custo 4800"))
+    agora[0] += mod.VALIDADE_SEGUNDOS + 1
+    resposta = conversa.receber(msg("ok"))
+
+    assert destino.escreveu == []
+    assert "conta a venda" in resposta.lower()

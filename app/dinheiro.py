@@ -38,8 +38,16 @@ def reais(valor: str | int | float | Decimal) -> Decimal:
 
     # Em pt-BR a virgula e o decimal e o ponto separa milhar. Sem virgula, o
     # ponto continua sendo milhar: '5.360' e cinco mil, nao cinco e trinta e seis.
-    if "," in texto:
-        texto = texto.replace(".", "").replace(",", ".")
+    if "," in texto and "." in texto:
+        # Quem separa o decimal e o que vier POR ULTIMO. '1.234,56' e
+        # brasileiro; '12,500.00' e americano. Confundir os dois nao da erro:
+        # da uma venda mil vezes menor, gravada em silencio.
+        if texto.rfind(",") > texto.rfind("."):
+            texto = texto.replace(".", "").replace(",", ".")
+        else:
+            texto = texto.replace(",", "")
+    elif "," in texto:
+        texto = texto.replace(",", ".")
     elif re.search(r"\.\d{1,2}$", texto):
         # '560.01' nao pode ser milhar: grupo de milhar tem tres digitos. E o
         # formato que maquina cospe -- e que um humano apressado tambem digita.

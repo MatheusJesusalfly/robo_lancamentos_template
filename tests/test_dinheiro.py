@@ -56,3 +56,12 @@ def test_arredonda_para_centavos():
 ])
 def test_formata_em_reais(valor, texto):
     assert em_reais(valor) == texto
+
+
+def test_formato_americano_nao_divide_a_venda_por_mil():
+    """'12,500.00' e americano: o decimal e o separador que vem POR ULTIMO.
+    Lido como brasileiro viraria R$ 12,50 -- e a conta ainda fecharia, entao a
+    venda errada entraria na planilha sem nenhum aviso."""
+    assert reais("12,500.00") == Decimal("12500.00")
+    assert reais("1.234,56") == Decimal("1234.56")
+    assert reais("1,234.56") == Decimal("1234.56")

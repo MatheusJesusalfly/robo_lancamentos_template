@@ -56,7 +56,7 @@ mudou. **Nunca entregue com teste vermelho.**
 | "quero mandar pro meu CRM" | nova classe ao lado de `app/destino/planilha.py`, seguindo `app/destino/porta.py` |
 | "quero no WhatsApp" | nova classe ao lado de `app/canal/telegram.py`. Avise que aí precisa de servidor com endereço público — é outro degrau |
 | "não quero o Google lendo meus dados" | `app/interpretador/`, e explique o plano pago |
-| um campo novo na venda | `app/dominio/lancamento.py`, o `ESQUEMA` em `app/interpretador/gemini.py`, e `apps_script/Codigo.gs` |
+| um campo novo na venda | **cinco lugares, todos os cinco:** `app/dominio/lancamento.py`, o `ESQUEMA` em `app/interpretador/gemini.py`, o dicionário `corpo` em `app/destino/planilha.py`, o `resumir()` em `app/conversa.py`, e `apps_script/Codigo.gs`. Esquecer o `corpo` faz a coluna nova chegar vazia na planilha — **com os testes verdes**, que é a única proteção que ela tem |
 
 **O manual é a primeira resposta.** Antes de propor mudar código, pergunte-se
 se escrever a regra em `manual/MANUAL.md` já resolve. Quase sempre resolve.
